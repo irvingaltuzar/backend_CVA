@@ -36,12 +36,16 @@ class WelcomeMessageJob implements ShouldQueue
      */
     public function handle()
     {
-		if ($this->data['current_environment'] == 1) {
-			Mail::to($this->email_list)
-				->send(new WelcomeMessage($this->data, $this->pwd));
-		} else if ($this->data['current_environment'] == 2 || $this->data['current_environment'] != 1) {
-			Mail::to($this->email_list)
-				->send(new EmailMarketConfirmation($this->data, $this->pwd));
-		}
+		if (!empty($this->data['environments'])) {
+            // Si hay al menos un entorno presente en el array, envía el correo de bienvenida
+            Mail::to($this->email_list)
+                ->send(new WelcomeMessage($this->data, $this->pwd));
+        }
+        // else    
+        // if (in_array(2, $this->data['environments'])) {
+        //     // Si el entorno 2 está presente en el array, envía el correo de confirmación de mercado
+        //     Mail::to($this->email_list)
+        //         ->send(new EmailMarketConfirmation($this->data, $this->pwd));
+        // }
     }
 }

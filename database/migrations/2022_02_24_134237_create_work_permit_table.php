@@ -21,6 +21,10 @@ class CreateWorkPermitTable extends Migration
             $table->timestamp('start')->useCurrent();
             $table->integer('responsable_id');
             $table->string('description', 500);
+            $table->string('work_area', 250);
+            $table->string('involved_staff',400);
+            $table->string('supervisor_notes', 500);
+            $table->string('security_notes', 500);
             $table->boolean('authorized')->default(0);
             $table->integer('authorized_by_id');
             $table->boolean('deleted')->default(0);
@@ -29,6 +33,9 @@ class CreateWorkPermitTable extends Migration
             $table->foreign('cat_work_permit_type_id', 'fk_work_permit_cat_work_permit_type1')->references('id')->on('cat_work_permit_type');
             $table->foreign('responsable_id', 'fk_work_permit_users1')->references('id')->on('users');
             $table->foreign('authorized_by_id', 'fk_work_permit_users2')->references('id')->on('users');
+            $table->foreign('environment_id', 'fk_environment_id1')->references('id')->on('environments');
+            $table->foreign('cat_brand_id', 'fk_cat_brand_id1')->references('id')->on('cat_brand');
+
         });
     }
 

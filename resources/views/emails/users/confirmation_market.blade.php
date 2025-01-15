@@ -1,5 +1,5 @@
 @component('mail::message', ['data' => $data, 'pwd' => $pwd])
-# Bienvenido al centro de vinculación Andares
+# Bienvenido al Centro de Vinculación Andares
 
 En esta plataforma podrás tramitar tus permisos
 

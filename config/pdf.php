@@ -11,5 +11,11 @@ return [
 	'tempDir'               => base_path('../temp/'),
 	'pdf_a'                 => false,
 	'pdf_a_auto'            => false,
-	'icc_profile_path'      => ''
+	'icc_profile_path'      => '',
+	'css' => [
+    'mode' => 'all', // Procesa todos los estilos CSS
+	],
+	'html5_parser' => true,
+
+	
 ];

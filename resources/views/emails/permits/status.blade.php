@@ -3,7 +3,7 @@
 @if ($data === 1)
 # Permiso autorizado
 
-Buen día, te informamos que la solicitud de tu permiso ha sido aprobado, con el siguiente horario: <br>
+Buen día, te informamos que la solicitud de tu permiso con <b>Folio: {{$permit['id']}}</b> ha sido aprobado, con el siguiente horario: <br>
 
 <b>{{ $start  }} al {{ $end  }} </b>.
 
@@ -11,13 +11,21 @@ Buen día, te informamos que la solicitud de tu permiso ha sido aprobado, con el
 
 Es importante ingresar a la plataforma para poder descargar el formato de permiso.
 
-@else
+@elseif ($data === 2)
 
 # Permiso rechazado
 
-Buen día, te informamos que la solicitud de tu permiso ha sido rechazada <br>
+Buen día, te informamos que la solicitud de tu permiso con <b>Folio: {{$permit['id']}}</b> ha sido rechazada <br>
 
 Motivo: {{ $permit['comments'] }}
+
+@else 
+
+# Permiso Reasignado
+
+Buen día, te informamos que la solicitud de tu permiso con <b>folio: {{$permit['id']}} </b> ha sido reasignado al area correspondiente de autorización <br>
+
+<b>Area: {{ $permit['type']['description'] }}</b>
 
 @endif
 

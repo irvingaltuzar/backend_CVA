@@ -27,13 +27,15 @@ class ReleaseController extends Controller
 							$q->with('release');
 										if ($request->origin == 0) {
 											$q->whereHas('release', function ($query) use ($request) {
-												$query->where('has_calendar', $request->origin)
-															->orWhere('has_calendar', !!!$request->origin);
+												$query->where('start','<=',Carbon::now()->format('Y-m-d'))
+														->where('end','>=',Carbon::now()->format('Y-m-d'));
 											});
 										} else {
 											$q->with('release')
 													->whereHas('release', function ($query) use ($request) {
-														$query->where('has_calendar', $request->origin);
+														$query->where('has_calendar', $request->origin)
+														->where('start','<=',Carbon::now()->format('Y-m-d'))
+														->where('end','>=',Carbon::now()->format('Y-m-d'));
 													});
 										}
 						}])
@@ -97,6 +99,13 @@ class ReleaseController extends Controller
 		} else {
 			false;
 		}
+	}
+
+	function delete(Request $request)
+	{
+		$release = Release::where('id', $request->eventId)->delete();
+
+		return response()->json("Evento Eliminado correctamente", 200);
 	}
 
 	function deleteReleaseFile(int $release_id) {

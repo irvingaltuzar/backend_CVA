@@ -31,7 +31,9 @@ class SegUsuario extends Authenticatable
 		'usuario',
 		'pwd',
 	];
-
+	protected $casts = [
+        'environment_id' => 'integer',
+    ];
 	public function getAuthPassword()
 	{
 		return $this->pwd;

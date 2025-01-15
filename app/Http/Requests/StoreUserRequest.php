@@ -30,8 +30,8 @@ class StoreUserRequest extends FormRequest
 			'position' => 'required',
 			'usuario' => 'required',
 			'emails' => 'required',
-			'birth_date' => 'required',
-			'cat_brand_id' => 'required',
+			// 'birth_date' => 'required',
+			// 'cat_brand_id' => 'required',
 			'cat_user_type_id' => 'required'
         ];
     }

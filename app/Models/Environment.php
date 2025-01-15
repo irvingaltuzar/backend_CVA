@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Environment extends Model
 {
 	public $autoincrement = true;
+	protected $table = 'environments';
 
 	public $timestamps = false;
 
     protected $guarded = [];
+
 
 	function bucket_brands() {
 		return $this->hasMany(BucketRole::class, 'environment_id')->where('deleted', 0);

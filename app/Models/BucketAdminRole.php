@@ -17,6 +17,10 @@ class BucketAdminRole extends Model
 		'environment_name',
 	];
 
+	protected $casts = [
+        'environment_id' => 'integer',
+    ];
+
 	public function getEnvironmentNameAttribute()
 	{
 		return $this->admin_environment->description;

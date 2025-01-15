@@ -34,4 +34,8 @@ class Announcement extends Model
 	{
 		return $this->hasMany($this, 'parent_id');
 	}
+	public function files()
+	{
+		return $this->hasMany(AnnouncementFile::class, 'messages_id');
+	}
 }

@@ -34,10 +34,24 @@ class SettingsController extends Controller
 		return response()->json($cat_brand_det);
 	}
 
+	public function getCatBrands()
+	{
+		$cat_brand_det = CatBrand::where("deleted",0)->get();
+
+		return response()->json($cat_brand_det);
+	}
+
     public function getOwnBrands(int $environment_id)
 	{
-		$brand = Environment::with(['bucket_brands.role_brands.type'])->where('id', $environment_id)->first();
-
+		$brand= Environment::with([
+		'bucket_brands' => function ($query) {
+        $query->whereHas('role_brands', function ($roleBrandQuery) {
+            $roleBrandQuery->whereHas('type', function ($typeQuery) {
+                $typeQuery->whereIn('cat_user_type_id', [3, 4]);
+            });
+        })->with(['role_brands.type']); // Cargar role_brands con type solo si existen
+		}
+		])->where('id', $environment_id)->first();	
 		return response()->json($brand);
 	}
 

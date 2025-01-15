@@ -35,8 +35,10 @@ class StatusPermit extends Mailable
     {
 		if ($this->data === 1) {
 			return $this->markdown('emails.permits.status')->subject('Permiso autorizado.');
-		} else {
+		} else if($this->data === 2) {
 			return $this->markdown('emails.permits.status')->subject('Permiso rechazado.');
+		}else {
+			return $this->markdown('emails.permits.status')->subject('Permiso Reasignado.');
 		}
     }
 }

@@ -30,4 +30,8 @@ class SegLogin extends Model
 	{
 		return $this->belongsTo(SegSubSeccion::class, 'subsecId');
 	}
+	public function user()
+	{
+		return $this->belongsTo(User::class, 'usuarioId', 'SEG_USUARIOS_usuarioId')->where('deleted', 0);
+	}
 }

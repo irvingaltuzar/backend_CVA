@@ -3,6 +3,10 @@
 namespace App\Jobs;
 
 use App\Mail\NewPermit;
+use App\Mail\updatePermit;
+use App\Mail\NewHighRiskPermit;
+use App\Mail\LastSignHighRiskPermit;
+use App\Mail\newCommentsPermit;
 use App\Mail\StatusPermit;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -42,13 +46,6 @@ class QueueJob implements ShouldQueue
 		if ($this->type === 1) {
 				Mail::to($this->email_list)
 					->send(new NewPermit($this->data));
-			// if ($this->environment == 1) {
-			// 	Mail::to($this->email_list)
-			// 		->send(new NewPermit($this->data));
-			// } else{
-			// 	Mail::to($this->email_list)
-			// 		->send(new NewPermit($this->data));
-			// }
 		}
 
 		if ($this->type === 2) {
@@ -60,9 +57,32 @@ class QueueJob implements ShouldQueue
 			Mail::to($this->email_list)
 				->send(new StatusPermit(2, $this->data, null, null));
 		}
+		//Status tipo 4 reasignacion
+		if ($this->type === 4) {
+			Mail::to($this->email_list)
+				->send(new StatusPermit(3, $this->data, null, null));
+		}
 		if ($this->type === 5) {
 			Mail::to($this->email_list)
 				->send(new StatusPermit(2, $this->data, null, null));
 		}
+		if ($this->type === 6) {
+			Mail::to($this->email_list)
+				->send(new NewHighRiskPermit($this->data));
+		}
+		if ($this->type === 7) {
+			Mail::to($this->email_list)
+				->send(new LastSignHighRiskPermit($this->data));
+		}
+
+		if ($this->type === 8) {
+			Mail::to($this->email_list)
+				->send(new newCommentsPermit($this->data));
+		}
+		if ($this->type === 9) {
+			Mail::to($this->email_list)
+				->send(new updatePermit($this->data));
+		}
+
     }
 }

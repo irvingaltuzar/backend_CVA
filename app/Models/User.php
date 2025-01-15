@@ -24,15 +24,23 @@ class User extends Model
 		'user_name',
 		'brand_name'
 	];
-
+	protected $casts = [
+        'cat_user_type_id' => 'integer',
+        'show_complaints' => 'boolean',
+		'show_warnings'=> 'boolean',
+    ];
 	public function brand()
 	{
 		return $this->belongsTo(CatBrand::class, 'cat_brand_id')->where('deleted', 0);
 	}
+	public function allbrands()
+	{
+		return $this->hasMany(BucketUsersBrands::class, 'users_id');
+	}
 
 	public function userSec()
 	{
-		return $this->belongsTo(SegUsuario::class, 'SEG_USUARIOS_usuarioId')->where('borrado', 0);
+		return $this->belongsTo(SegUsuario::class, 'SEG_USUARIOS_usuarioId');
 	}
 
 	public function getUserNameAttribute()
@@ -42,7 +50,9 @@ class User extends Model
 
 	public function getBrandNameAttribute()
 	{
-		return $this->brand->description;
+		$roleBrand = $this->brand;
+
+		return $roleBrand ? $roleBrand->description : 'No Brand';
 	}
 
 	public function phones()

@@ -1,151 +1,162 @@
-	<html>
-		<head>
-			<link rel="stylesheet" href="{{ public_path('css/printer_work_permit.css') }}">
-		</head>
-		<body>
-			<div class="container">
-				<table cellspacing="5" cellpadding="2">
-					<tr style="position: absolute;">
-						<td class="col-1"><span class="attribute-3">Folio:</span> <span class="value-3">{{ $data->id }}</span></td>
-						<td class="col-9 text-center"><strong><span class="title">SOLICITUD DE PERMISOS</span></strong></td>
-					</tr>
-					<tr>
-						<td class="col-3 text-left subtext-1 text-center">
-							<span class="attribute-2">Fecha de solicitud:</span>
-							<span class="value-2">{{ $data->created_at }}</span>
-						</td>
-						<td class="col-9 text-2 text-center">
-							Horario de atención de lunes a viernes de 9:00 a.m. a 2:00 p.m. y 3:00 p.m. a 6:00 p.m.
-						</td>
-						<td class="col-3 text-1 text-center">
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="{{ public_path('css/printer_work_permit.css') }}">
 
-						</td>
-					</tr>
-				</table>
-				<br>
-				<table style="z-index:1;">
-					<tr class="text-right">
-						<td colspan="2" class="col-4"></td>
-						<td class="col-3" align="right">
-							<span class="attribute-2">Departamento:</span>
-							<span class="value-2">{{$data->type->description}}</span>
-						</td>
-						<td class="col-3" align="right">
-							<span class="attribute-2">Edificio:</span>
-							<span class="value-2">{{$data->user->brand_environment->environment->description}}</span>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="1"></td>
-						<td colspan="3" align="right">
-							<span class="atrribute-1"><strong>Inicio</strong></span>
-							<span class="attibute-1">Fecha:</span>
-							<span class="value-1">{{ \Carbon\Carbon::parse($data->start)->format('d-m-Y') }}</span>
-							<span class="attribute-1">&nbsp;/&nbsp;</span>
-							<span class="atrribute-1"><strong>Fin</strong></span>
-							<span class="attibute-1">Fecha:</span>
-							<span class="value-1">{{ \Carbon\Carbon::parse($data->end)->format('d-m-Y') }}</span>
+</head>
+<body>
+    <div class="bordered-container">
+        <!-- Header -->
+        <div class="header">
+            <table>
+            <tr>
+                <!-- Columna izquierda: Folio -->
+                <td class="left-column">
+                    <div class="folio">
+                        <div class="folio-label">Folio: </div>
+                        <div class="folio-number">{{ $data->id }}</div>
+                    </div>
+                </td>
 
-						</td>
-					</tr>
-					<tr>
-						<td colspan="1"></td>
-						<td colspan="3" align="right">
-							<span class="atrribute-1"><strong>Horario autorizado para labores</strong></span>
-							<span class="attibute-1">:</span>
-							<span class="value-1">{{ \Carbon\Carbon::parse($data->start)->format('H:i:s') }}</span>
-							<span class="attribute-1">&nbsp;/&nbsp;</span>
-							<span class="value-1">{{ \Carbon\Carbon::parse($data->end)->format('H:i:s') }}</span>
-						</td>
-					</tr>
-					<tr>
-						<td style="padding-top:12px;" colspan="3"><strong class="attribute-2">Responsable *</strong></td>
-					</tr>
-					<tr>
-						<td class="col">
-							<span class="attribute-1">Nombre: </span>
-							<span class="value-1">{{$data->user->user_name}}</span>
-						</td>
-						<td class="col">
-							<span class="attribute-1">Empresa: </span>
-							<span class="value-1">{{ $data->user->brand->description }}</span>
-						</td>
-						<td class="col">
-							<span class="attribute-1">Teléfono: </span>
-							<span class="value-1">{{ (sizeof($data->user->phones) > 0) ? $data->user->phones[0]->phone : '' }}</span>
-						</td>
-						<td class="col" >
-							<span class="attribute-1">Correo: </span>
-							<span class="value-1">{{ $data->user->mail->mail }}</span>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="4" style="padding-left:10%" class="text-center">
-							<span class="attribute-1">Teléfono de emergencia: </span>
-							<span class="value-1">{{ ($data->warning_phone) != null ? $data->warning_phone : '' }}</span>
-						</td>
-					</tr>
-					<tr>
-						<td style="padding-top:12px;" colspan="4">
-							<br>
-							<span class="attribute-2"><strong>Descripción / Requerimientos</strong></span>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="4">
-							{{ $data->description }}
-						</td>
-					</tr>
-					<tr>
-						<td colspan="4">
-							<br>
-							<br>
-							<br>
-						</td>
-					</tr>
-					<tr>
+                <!-- Columna central: unit-info -->
+                <td class="unit-info">
+                    <div class="unit-name">{{ $data->environment->description ?? '' }}</div>
+                    <div class="format-text">FORMATO DE PERMISO</div>
+                </td>
 
-						<td colspan="2" align="center" style="text-align:center;">
-							<img src="{{ public_path($authorized_by_signature) }}" style="margin-lef:1rem;width:10%">
-							<b><p style="text-align:center;">{{ $data->authorizedBy->user_name }}</p></b>
-							<br>
-							<p> Nombre y firma de Centro Comercial</p>
-						</td>
-						<td></td>
-						<td colspan="2" align="center" style="text-align:center;">
-							<img src="{{ public_path($owner_signature) }}" style="margin-lef:1rem;width:10%">
-							<b><p style="text-align:center;">{{ $data->user->user_name }}</p></b>
-							<br>
-							<p> Nombre y firma de Responsable</p>
-						</td>
-					</tr>
-					<tr>
-						<td></td>
-					</tr>
-				</table>
+                <!-- Columna derecha: vacía -->
+                <td class="right-column">
+                @if(($data->high_risk))
+                <img src="{{ public_path('img/caution-icon.svg') }}" alt="Warning Icon" width="75" height="75" style=";">
+                <b>Alto Riesgo<b>
+                @endif
+                </td>
+            </tr>
+        </table>
+    </div>
 
-			</div>
-			<div style="right:-23%;position: absolute;bottom:0%
-			z-index:2;">
-				<img src="{{ public_path("img/$logo") }}"
-					style="width:35%;">
-			</div>
-			<div style="left:0%;position: absolute;bottom:0%
-			z-index:2;">
-				<img src="data:image/svg;base64, {!! base64_encode(QrCode::format('svg')->size(100)->generate("https://app-vinculacion.andares.com:11004/qr/show-info/$id")) !!} ">
-			</div>
-			<footer>
-				<span class="subtext-1">* El responsable acepta el compromiso ante los daños y perjuicios que pueda ocasionar al inmueble y a terceros ajenos a razón de los trabajos y/o actividades pactadas en la presente solicitud. No se validará el permiso sin firma, folio y código QR.</span>
-			</footer>
-			<div style="page-break-after:always"></div>
-			<table cellspacing="5" cellpadding="3">
-				<tr style="">
-					@foreach ($files as $file)
-						<td class="col-2 text-center">
-							<img src="{{ public_path("storage/WorkPermits/$file->work_permit_id/$file->file") }}" style="width:35%;">
-						</td>
-					@endforeach
-					</tr>
-				</table>
-		</body>
-	</html>
+        <!-- Information -->
+        <table class="info-container">
+            <tr>
+                <td class="left-column">
+                    <p class="custom-style custom-style-large">
+                        <span>Fecha de solicitud: <span class="value_color">{{ \Carbon\Carbon::parse($data->created_at)->format('d-m-Y H:i:s') }}</span></span><br>
+                        <span>Fecha Inicio: <span class="value_color">{{ \Carbon\Carbon::parse($data->start)->format('d-m-Y') }}</span></span>
+                        <span>Fecha Fin: <span class="value_color">{{ \Carbon\Carbon::parse($data->end)->format('d-m-Y') }}</span></span><br>
+                        <span>Horario autorizado: <span class="value_color">{{ \Carbon\Carbon::parse($data->start)->format('H:i:s') }} hrs a {{ \Carbon\Carbon::parse($data->end)->format('H:i:s') }} hrs</span></span>
+                    </p>
+                </td>
+                <td class="right-column">
+                    <p class="custom-style custom-style-large">
+                        <span>Departamento: <span class="value_color">{{$data->type->description}}</span></span><br>
+                        <span>Edificio: <span class="value_color">{{ $data->environment->description ?? '' }}</span></span><br>
+                        @if(($data->high_risk))
+                        <span>*Trabajo alto Riesgo: <span class="value_color">{{ $data->type_highrisk->description ?? '' }}</span></span>
+                        @endif
+                    </p>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Responsible Data -->
+        <p class="custom-style custom-style-solicitante">
+            <b>*Datos del responsable:</b>
+        </p><br>
+
+        <table class="info-container">
+            <tr>
+                <td>
+                    <p class="left-column custom-style">
+                        <span>Nombre completo: <span class="value_color">{{$data->user->user_name}}</span></span><br>
+                        <span>Empresa: <span class="value_color">{{ $data->user->brand->description }}</span></span>
+                    </p>
+                </td>
+                <td>
+                    <p class="unit-info custom-style">
+                        <span>Teléfono: <span class="value_color">{{ (sizeof($data->user->phones) > 0) ? $data->user->phones[0]->phone : '' }}</span></span><br>
+                        <span>Teléfono de emergencia: <span class="value_color">{{ ($data->warning_phone) != null ? $data->warning_phone : '' }}</span></span>
+                    </p>
+                </td>
+                <td>
+                    <p class="right-column custom-style ">
+                        <span>Correo electrónico: </span><br>
+                        <span class="value_color">{{ $data->user->mail->mail }}</span>
+                    </p>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Description -->
+        <p class="custom-style custom-style-solicitante">
+            <b>*Descripción del permiso y/o requerimientos:</b>
+        </p>
+          <!-- Information -->
+          <table class="info-container">
+            <tr>
+                <td class="left-column">
+                <p class="left-column custom-style">
+                    <span>	{{ $data->description }}</span><br><br>
+                    <b>*Areas de trabajo: </b><span>	{{ ($data->work_area) != null ? $data->work_area : '' }}</span><br>
+                    <b>*Personal Involucrado: </b><span>	{{ ($data->involved_staff) != null ? $data->involved_staff : '' }}</span>
+                            </p>
+                        </td>
+            </tr>
+        </table>
+
+        <div class="responsable-legend">
+            <p>*El responsable acepta el compromiso ante los daños y perjuicios que pueda ocasionar al inmueble y a terceros ajenos a razón de los trabajos y/o actividades pactadas en la presente solicitud. No se validará sin firma, folio y código QR.</p>
+        </div><br>
+
+        <!-- Footer -->
+        <div class="footer">
+            <table>
+                <tr>
+                    <td class="footer-column logo-column">
+                        <img src="{{ public_path("img/$logo") }}" alt="Logo" class="footer-logo">
+                    </td>
+                    <td class="footer-column signature-column">
+                        <img src="{{ public_path($authorized_by_signature) }}" alt="Firma 1" class="footer-signature">
+                        <div class="signature-info">
+                            {{ $data->authorizedBy->user_name }}<br> <b>  {{$data->authorizedBy->position}}<b>
+                        </div>
+                    </td>
+                    @if(!is_null($data->authorizedBySecurity))
+                    <td class="footer-column signature-column">
+                        <img src="{{ public_path($authorized_by_security_signature) }}" alt="Firma 2" class="footer-signature">
+                        <div class="signature-info">
+                            {{ $data->authorizedBySecurity->user_name }}<br> <b>  {{$data->authorizedBySecurity->position}}<b>
+                        </div>
+                    </td>
+                    @endif
+                    <td class="footer-column signature-column">
+                        <img src="{{ public_path($owner_signature) }}" alt="Firma 3" class="footer-signature">
+                        <div class="signature-info">
+                            {{ $data->user->user_name }}<br> <b> {{ $data->user->position}}<b>
+                        </div>
+                    </td>
+                    <td class="footer-column qr-column">
+                        <img src="data:image/svg;base64, {!! base64_encode(QrCode::format('svg')->size(100)->generate("https://app-vinculacion.andares.com:11004/qr/show-info/$id")) !!} " alt="Código QR" class="footer-qr">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- Information -->
+        <table class="info-container">
+            <tr>
+                <td class="left-column">
+                <p class="left-column custom-style">
+                    @if(!is_null($data->supervisor_notes))
+                    <b>*Notas y/o comentarios de Supervisor: </b><span>	{{ ($data->supervisor_notes) != null ? $data->supervisor_notes : '' }}</span><br>
+                    @endif
+
+                    @if(!is_null($data->security_notes))
+                    <b>*Notas y/o comentarios de Seguridad: </b><br>
+                    <span>	{{ ($data->security_notes) != null ? $data->security_notes : '' }}</span>
+                    @endif
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

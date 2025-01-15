@@ -30,8 +30,10 @@ Route::middleware(['auth:sanctum'])->get('/user', function () {
 
 Route::middleware(['auth:sanctum'])->get('brand/get-list', [App\Http\Controllers\CatBrandController::class, 'dt']);
 Route::middleware(['auth:sanctum'])->get('brand/get-by-type/{id}/{current_environment_id}', [App\Http\Controllers\CatBrandController::class, 'getByType']);
+Route::middleware(['auth:sanctum'])->post('brand/post-by-type', [App\Http\Controllers\CatBrandController::class, 'postByType']);
 Route::middleware(['auth:sanctum'])->get('brand/fetch-own', [App\Http\Controllers\CatBrandController::class, 'fetchOwn']);
 Route::middleware(['auth:sanctum'])->get('brand/fetch', [App\Http\Controllers\CatBrandController::class, 'fetch']);
+Route::middleware(['auth:sanctum'])->post('brand/getBrandsUserEnv', [App\Http\Controllers\CatBrandController::class, 'getBrandsUserEnv']);
 Route::middleware(['auth:sanctum'])->post('brand/store', [App\Http\Controllers\SettingsController::class, 'storeBrand']);
 Route::middleware(['auth:sanctum'])->get('brand/get-warning-type', [App\Http\Controllers\CatBrandController::class, 'getWarningType']);
 Route::middleware(['auth:sanctum'])->get('cat-work/get-list', [App\Http\Controllers\CatWorkPermitController::class, 'dt']);
@@ -39,18 +41,31 @@ Route::middleware(['auth:sanctum'])->get('/settings/get-distribution-list', [App
 Route::middleware(['auth:sanctum'])->get('/settings/get-permit-boss', [App\Http\Controllers\SettingsController::class, 'getPermitBoss']);
 Route::middleware(['auth:sanctum'])->get('/dashboard/get-stats', [App\Http\Controllers\DashboardController::class, 'getAdminStats']);
 Route::middleware(['auth:sanctum'])->get('/dashboard/get-user-stats', [App\Http\Controllers\DashboardController::class, 'getUserStats']);
+Route::middleware(['auth:sanctum'])->post('/download', [App\Http\Controllers\DownloadFilesController::class, 'downloadPDF']);
 
 /* ==========================================================================
 	WorkPermit routes
 ========================================================================== */
 
 Route::middleware(['auth:sanctum'])->post('work-permit/store', [App\Http\Controllers\WorkPermitController::class, 'store']);
+Route::middleware(['auth:sanctum'])->post('work-permit/storeFileDoc', [App\Http\Controllers\WorkPermitController::class, 'storeFileDoc']);
+Route::middleware(['auth:sanctum'])->post('work-permit/update', [App\Http\Controllers\WorkPermitController::class, 'update']);
+Route::middleware(['auth:sanctum'])->post('work-permit/addComments', [App\Http\Controllers\WorkPermitController::class, 'addComments']);
+Route::middleware(['auth:sanctum'])->post('work-permit/getComments', [App\Http\Controllers\WorkPermitController::class, 'getComments']);
+Route::middleware(['auth:sanctum'])->post('work-permit/deleteFiles', [App\Http\Controllers\WorkPermitController::class, 'DeleteFilesWorkPermit']);
 Route::middleware(['auth:sanctum'])->get('work-permit/supplier/get-list', [App\Http\Controllers\WorkPermitController::class, 'fetchSupplierPermit']);
-Route::middleware(['auth:sanctum'])->get('work-permit/get-list/{environment_id}', [App\Http\Controllers\WorkPermitController::class, 'dt']);
-Route::middleware(['auth:sanctum'])->get('work-permit/get-security-list/{environment_id}', [App\Http\Controllers\WorkPermitController::class, 'fetchSecurityPermit']);
+Route::middleware(['auth:sanctum'])->get('work-permit/get-list', [App\Http\Controllers\WorkPermitController::class, 'dt']);
+Route::middleware(['auth:sanctum'])->get('work-permit/get-list-high-risk', [App\Http\Controllers\WorkPermitController::class, 'dt']);
+Route::middleware(['auth:sanctum'])->get('work-permit/get-security-list', [App\Http\Controllers\WorkPermitController::class, 'fetchSecurityPermit']);
+Route::middleware(['auth:sanctum'])->get('work-permit/getCatHighRisk', [App\Http\Controllers\WorkPermitController::class, 'getCatHighRisk']);
 Route::middleware(['auth:sanctum'])->post('work-permit/authorize', [App\Http\Controllers\WorkPermitController::class, 'authorizePermit']);
+Route::middleware(['auth:sanctum'])->post('work-permit/authorize_security', [App\Http\Controllers\WorkPermitController::class, 'authorizeSecurityPermit']);
 Route::middleware(['auth:sanctum'])->post('work-permit/cancel', [App\Http\Controllers\WorkPermitController::class, 'cancelPermit']);
+Route::middleware(['auth:sanctum'])->post('work-permit/reasign', [App\Http\Controllers\WorkPermitController::class, 'ReasignPermit']);
 Route::middleware(['auth:sanctum'])->post('work-permit/show-pdf', [App\Http\Controllers\WorkPermitController::class, 'showPdf']);
+Route::middleware(['auth:sanctum'])->get('work-permit/downloadZip', [App\Http\Controllers\WorkPermitController::class, 'downloadZip']);
+Route::middleware(['auth:sanctum'])->get('work-permit/document-url', [App\Http\Controllers\WorkPermitController::class, 'getFileUrl']);
+Route::middleware(['auth:sanctum'])->post('work-permit/active_highrisk', [App\Http\Controllers\WorkPermitController::class, 'active_highrisk']);
 
 /* ==========================================================================
 	Signature routes
@@ -104,6 +119,7 @@ Route::middleware(['auth:sanctum'])->get('rules/fetch', [App\Http\Controllers\Ru
 ========================================================================== */
 
 Route::middleware(['auth:sanctum'])->post('release/store', [App\Http\Controllers\ReleaseController::class, 'store']);
+Route::middleware(['auth:sanctum'])->post('release/delete', [App\Http\Controllers\ReleaseController::class, 'delete']);
 Route::middleware(['auth:sanctum'])->post('release/update', [App\Http\Controllers\ReleaseController::class, 'update']);
 Route::middleware(['auth:sanctum'])->get('release/fetch', [App\Http\Controllers\ReleaseController::class, 'fetchData']);
 
@@ -112,6 +128,7 @@ Route::middleware(['auth:sanctum'])->get('release/fetch', [App\Http\Controllers\
 ========================================================================== */
 
 Route::get('/brands/get-data/{id}', [App\Http\Controllers\SettingsController::class, 'getOwnBrands']);
+Route::get('/brands/get-data-cat', [App\Http\Controllers\SettingsController::class, 'getCatBrands']);
 Route::post('swap/environment', [App\Http\Controllers\SwapperController::class, 'environment']);
 
 Route::get('/unauthenticated', function () {
@@ -127,6 +144,7 @@ Route::get('/unauthenticated', function () {
 Route::middleware(['auth:sanctum'])->get('user/get-list', [App\Http\Controllers\UserController::class, 'dt']);
 Route::middleware(['auth:sanctum'])->get('user/get-permissions', [App\Http\Controllers\UserController::class, 'getPermissions']);
 Route::middleware(['auth:sanctum'])->get('user/get-user-type', [App\Http\Controllers\UserController::class, 'getUserType']);
+Route::middleware(['auth:sanctum'])->get('user/get-user-type-brand', [App\Http\Controllers\UserController::class, 'getUserTypeBrand']);
 Route::middleware(['auth:sanctum'])->get('user/get-admin-users', [App\Http\Controllers\UserController::class, 'getAdminUsers']);
 Route::middleware(['auth:sanctum'])->get('user/get-user-by-brand/{id}', [App\Http\Controllers\UserController::class, 'getUserByBrand']);
 Route::middleware(['auth:sanctum'])->get('user/get-user-by-warning/{id}', [App\Http\Controllers\UserController::class, 'getUserByWarning']);
@@ -139,6 +157,7 @@ Route::middleware(['auth:sanctum'])->get('user/settings/delete-permit-boss/{id}'
 Route::middleware(['auth:sanctum'])->get('user/check-nickname/{nickname}', [App\Http\Controllers\UserController::class, 'checkNickname']);
 Route::middleware(['auth:sanctum'])->post('user/check-mails', [App\Http\Controllers\UserController::class, 'checkMails']);
 Route::middleware(['auth:sanctum'])->get('user/check-current-environment', [App\Http\Controllers\UserController::class, 'checkEnvironment']);
+Route::middleware(['auth:sanctum'])->get('user/getEnvironments', [App\Http\Controllers\UserController::class, 'getEnvironments']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('user/change-pwd', [App\Http\Controllers\UserController::class, 'changePwd']);

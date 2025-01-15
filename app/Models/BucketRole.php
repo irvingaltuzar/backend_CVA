@@ -19,7 +19,9 @@ class BucketRole extends Model
 
 	public function getBrandNameAttribute()
 	{
-		return $this->role_brands->description;
+		$roleBrand = $this->role_brands;
+
+		return $roleBrand ? $roleBrand->description : 'No Brand';
 	}
 
 	function role_brands() {
@@ -29,4 +31,13 @@ class BucketRole extends Model
 	function environment() {
 		return $this->belongsTo(Environment::class, 'environment_id')->where('deleted', 0);
 	}
+	
+	public function bucketUsersBrands()
+{
+    return $this->hasMany(BucketUsersBrands::class, 'cat_brand_id', 'cat_brand_id');
+}
+	protected $casts = [
+        'cat_brand_id' => 'integer',
+        'environment_id' => 'integer',
+    ];
 }

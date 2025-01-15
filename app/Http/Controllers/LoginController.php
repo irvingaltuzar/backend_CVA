@@ -66,14 +66,18 @@ class LoginController extends Controller
 			return response()->json([
 				'message' => _('auth.failed')
 			], 401);
-		} catch (Error $ddddddsdasd) {
-
-		}
+	   } catch (\Throwable $e) {
+        // Manejar errores inesperados
+        return response()->json([
+            'message' => 'Ocurrió un error inesperado.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 	}
 
 	public function checkAccount(Request $request)
 	{
-		$user = SegUsuario::where('usuario', $request->user)->first();
+		$user = SegUsuario::where('usuario', $request->user)->where("borrado",0)->first();
 
 		if (!!!$user) {
 			return response()->json([

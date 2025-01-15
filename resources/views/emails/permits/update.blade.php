@@ -1,7 +1,7 @@
 @component('mail::message',  ['data' => $data])
-# Se ha solicitado un nuevo permiso en la plataforma.
+# Se ha editado un permiso en la plataforma.
 
-Buen día, te informamos que se ha solicitado un nuevo permiso con <b>Folio: {{$data->id}}</b> por parte de
+Buen día, te informamos que se ha editado permiso con <b>Folio: {{$data->id}}</b> por parte de
 <b> {{ $data->user->user_name }} </b> para <b> {{ $data->brand->description }} </b>
 con fecha <br>
 <b>{{ \Carbon\Carbon::parse($data->start)->format('d-m-Y') }} al {{ \Carbon\Carbon::parse($data->end)->format('d-m-Y') }} </b>.

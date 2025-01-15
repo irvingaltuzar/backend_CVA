@@ -15,21 +15,25 @@ use App\Models\SegLogin;
 use App\Models\SegSeccion;
 use App\Models\SegSubSeccion;
 use App\Models\SegUsuario;
+use App\Models\BucketUsersBrands;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\WorkPermitBoss;
+use App\Models\Environment;
 use App\Services\AuditService;
+use App\Services\SendEmailService;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
 
-	private $userRepository, $auditService;
+	private $userRepository, $auditService, $sendEmail;
 
-	public function __construct(UserRepository $userRepository, AuditService $auditService)
+	public function __construct(UserRepository $userRepository, AuditService $auditService,SendEmailService $sendEmail)
 	{
 		$this->userRepository = $userRepository;
 		$this->auditService = $auditService;
+		$this->sendEmail = $sendEmail;
 	}
 
 	public function getUser()
@@ -61,52 +65,108 @@ class UserController extends Controller
 		return response()->json($this->userRepository->getCurrentEnvironment());
 	}
 
+	// public function dt(Request $request) : JsonResponse
+	// {
+	// 	$brands = $this->userRepository->getBrandsByEnvironment($request->current_environment);
+
+	// 	$users = SegUsuario::with(['user' => function ($q) {
+	// 					return $q->with(['brand', 'mails' , 'phones' , 'permitBoss' => function ($query) {
+	// 						return $query->with(['permitType'])->where('deleted', false);
+	// 					}]);
+	// 				}])
+	// 				->whereHas('user', function ($q) use ($brands){
+	// 					return $q->whereIn('cat_brand_id', $brands);
+	// 				})
+	// 				->where(
+	// 					function ($q) use ($request){
+	// 						return $q->where('borrado', 0)
+	// 						->where('usuarioId', '>', 2)
+	// 						->whereRaw("concat(nombre, ' ', apepa) like '%" .$request->search. "%' ")
+	// 						->orWhere(
+	// 							function ($q) use ($request){
+	// 								return $q->where('borrado', 0)
+	// 										->where('usuarioId', '>', 2)
+	// 										->WhereRelation('user.allbrands',function($q) use ($request){
+	// 											return $q->orWhere('description', 'like', "%$request->search%");
+	// 								});
+	// 							}
+	// 						);
+	// 					}
+	// 				)
+	// 				->where(
+	// 					function ($q) use ($request){
+	// 						return $q->where('borrado', 0)
+	// 						->where('usuarioId', '>', 2);
+	// 					}
+	// 				)
+	// 				->paginate(10);
+
+	// 	return response()->json($users);
+	// }
 	public function dt(Request $request) : JsonResponse
 	{
-		$brands = $this->userRepository->getBrandsByEnvironment($request->current_environment);
+		// // Obtener las marcas relacionadas a través de bucket_users_brand
+		// $brands = $this->userRepository->getBrandsByEnvironment($request->current_environment);
 
-		$users = SegUsuario::with(['user' => function ($q) {
-						return $q->with(['brand', 'mails' , 'phones' , 'permitBoss' => function ($query) {
-							return $query->with(['permitType'])->where('deleted', false);
-						}]);
-					}])
-					->whereHas('user', function ($q) use ($brands){
-						return $q->whereIn('cat_brand_id', $brands);
-					})
-					->where(
-						function ($q) use ($request){
-							return $q->where('borrado', 0)
-							->where('usuarioId', '>', 2)
-							->whereRaw("concat(nombre, ' ', apepa) like '%" .$request->search. "%' ")
-							->orWhere(
-								function ($q) use ($request){
-									return $q->where('borrado', 0)
-											->where('usuarioId', '>', 2)
-											->WhereRelation('user.brand',function($q) use ($request){
-												return $q->orWhere('description', 'like', "%$request->search%");
-									});
-								}
-							);
-						}
-					)
-					->where(
-						function ($q) use ($request){
-							return $q->where('borrado', 0)
-							->where('usuarioId', '>', 2);
-						}
-					)
-					->paginate(10);
+		$currentEnvironmentId = $request->current_environment;
+		// Obtener los usuarios con las relaciones necesarias
+			$users = SegUsuario::with([
+				'location_role.admin_environment',
+				'user' => function ($q) {
+					$q->with([
+						'brand',  // Relación a la tabla CatBrand
+						'mails',
+						'phones',
+						'permitBoss' => function ($query) {
+							$query->with(['permitType'])->where('deleted', false);
+						},
+						'allbrands.brand'  // Relación para obtener las marcas relacionadas
+					]);
+				}
+			])
+			->where('borrado', 0) // Filtro de borrado directamente aquí
+			->whereHas('location_role.admin_environment', function ($q) use ($currentEnvironmentId) {
+				// Filtrar por el ID del entorno actual
+				$q->where('environment_id', $currentEnvironmentId);
+			})
+			->where(function ($q) use ($request) {
+				$q->whereRaw("concat(nombre, ' ', apepa) like '%" . $request->search . "%'")
+				->orWhereHas('user.allbrands.brand', function ($q) use ($request) {
+					$q->where('description', 'like', "%{$request->search}%");
+				});
+			})
+			->paginate(10);
 
 		return response()->json($users);
 	}
-
+	
+	
 	public function getUserType() : JsonResponse
 	{
-		$cat_user = CatUserType::where('id', '<>', 1)->get();
+		$user_type_id= $this->userRepository->getUser()->user[0]->cat_user_type_id;
+
+		if(	$user_type_id !==1){
+			$cat_user = CatUserType::where('description', 'not like', '%Super%')
+			->whereNotIn('description', ['personal de eventos', 'seguridad'])
+			->get();
+
+		}else{
+			$cat_user=CatUserType::where('deleted', 0)
+			->get();
+		}
 
 		return response()->json($cat_user);
 	}
 
+	public function getUserTypeBrand() : JsonResponse
+	{
+		$cat_user=CatUserType::whereIn('description', ['Locatarios', 'Proveedores'])
+		->where('deleted', 0)
+		->get();
+
+		return response()->json($cat_user);
+	}
+	
 	public function store(StoreUserRequest $request)
 	{
 
@@ -119,9 +179,8 @@ class UserController extends Controller
 						'usuario' => $request['usuario'],
 						'pwd' => bcrypt($pwd),
 					]);
-
+	
 		$this->userRepository->store($user_sec->usuarioId, $request, $pwd);
-
 		$user_sec->load(['user' => function ($q) {
 			return $q->with(['brand', 'permitBoss' => function ($query) {
 				return $query->with(['permitType'])->where('deleted', false);
@@ -133,13 +192,29 @@ class UserController extends Controller
 
 	public function update(UpdateUserRequest $request)
 	{
+			// Obtén el valor actual de 'usuario' desde la base de datos
+			$currentUser = SegUsuario::where('usuarioId', $request['usuarioId'])->first();
+			$currentUsuario = $currentUser->usuario;
 
-		$user_sec = SegUsuario::where('usuarioId', $request['usuarioId'])->update([
-						'nombre' => $request['nombre'],
-						'apepa' => $request['apepa'],
-						'apema' => $request['apema'],
-					]);
+			// Actualiza los datos del usuario
+			$user_sec = $currentUser->update([
+				'nombre' => $request['nombre'],
+				'apepa' => $request['apepa'],
+				'apema' => $request['apema'],
+				'usuario' => $request['usuario'],
+			]);
 
+		// Verifica si 'usuario' ha cambiado
+			if ($currentUsuario !== $request['usuario']) {
+				// Si el campo 'usuario' ha cambiado y hay emails, genera $pwd y envía el email
+				if (sizeof($request->emails) > 0) {
+					$pwd = Str::random(8); // Genera la contraseña solo si va a enviar el email
+					$this->sendEmail->newUser($request->emails, $request, $pwd);
+
+					// Opcional: puedes actualizar la contraseña en la base de datos aquí si es necesario
+					$currentUser->update(['pwd' => bcrypt($pwd)]);
+				}
+			}
 		$this->userRepository->update($request['usuarioId'], $request);
 
 		return response()->json($user_sec);
@@ -164,7 +239,8 @@ class UserController extends Controller
 
 	public function getUserByBrand(int $id)
 	{
-		$user = User::with('userSec')->where('cat_brand_id', $id)->get();
+		// $user = User::with('userSec')->where('cat_brand_id', $id)->get();
+		$user = BucketUsersBrands::with('user')->where('cat_brand_id', $id)->get();
 
 		if (!!$user) {
 			return response()->json([
@@ -225,6 +301,13 @@ class UserController extends Controller
 		$admin_users = User::with('userSec')->where('cat_user_type_id', 2)->get();
 
 		return response()->json($admin_users);
+	}
+
+	public function getEnvironments()
+	{
+		$environments = Environment::where('deleted',0)->get();
+
+		return response()->json($environments);
 	}
 
 	public function checkNickname(String $nickname)
@@ -352,6 +435,8 @@ class UserController extends Controller
 		$deleted = SegUsuario::where('usuarioId', $request->id)->firstOrFail();
 
 		$deleted->borrado = !!!$deleted->borrado;
+		$deleted->bloqueado =1;
+		$deleted->usuario = $deleted->usuario."_del";
 		$deleted->save();
 
 		if ($deleted->borrado === true) {

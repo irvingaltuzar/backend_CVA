@@ -29,6 +29,9 @@ class UpdateUserRequest extends FormRequest
 			'apema' => 'required',
 			'position' => 'required',
 			'usuarioId' => 'required',
+			'usuarioId' => 'required',
+            'brands' => 'required',
+            'environments' => 'required',
         ];
     }
 
@@ -39,6 +42,8 @@ class UpdateUserRequest extends FormRequest
 			'apepa' => 'apellido paterno',
 			'apema' => 'apellido materno',
 			'position' => 'puesto',
+            'brands' => 'marcas',
+            'environments' => 'Ubicaciones',
 		];
 	}
 }

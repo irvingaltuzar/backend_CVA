@@ -25,6 +25,7 @@ class StoreWorkPermitRequest extends FormRequest
     {
         return [
             'cat_work_permit_type_id' => 'required',
+            'cat_brand_id' => 'required',
 			'description' => 'required',
 			'permit_date' => 'date|required',
 			'end_date' => 'date|required',
@@ -36,6 +37,7 @@ class StoreWorkPermitRequest extends FormRequest
 	{
 		return [
 			'cat_work_permit_type_id' => 'tipo de permiso',
+			'cat_brand_id' => 'marca',
 			'description' => 'descripción',
 			'permit_date' => 'fecha de inicio',
 			'end_date' => 'fecha de finalización',

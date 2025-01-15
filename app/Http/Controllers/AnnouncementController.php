@@ -116,7 +116,7 @@ class AnnouncementController extends Controller
 		$brands = $this->userRepository->getBrandsByEnvironment($current_environment);
 
 		if ($type === 0) {
-			$message = Announcement::with(['toName', 'conversation.sendedBy'])
+			$message = Announcement::with(['toName', 'conversation.sendedBy','files'])
 						->whereHas('toName', function ($q) use ($brands){
 							return $q->whereIn('cat_brand_id', $brands);
 						})
@@ -127,6 +127,7 @@ class AnnouncementController extends Controller
 
 			return response()->json($message);
 		} else {
+			try {
 			$message = Announcement::with(['toName', 'conversation.sendedBy'])
 						->whereHas('toName', function ($q) use ($brands){
 							return $q->whereIn('cat_brand_id', $brands);
@@ -146,6 +147,10 @@ class AnnouncementController extends Controller
 			}
 
 			return response()->json($arr);
+
+			} catch (\Exception $e) {
+				return response()->json(['error' => $e->getMessage()], 500);
+			}
 		}
 	}
 

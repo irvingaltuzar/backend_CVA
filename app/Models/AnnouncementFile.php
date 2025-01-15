@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Storage;
-class WorkPermitFile extends Model
+class AnnouncementFile extends Model
 {
-	protected $table = 'work_permit_file';
+    protected $table = 'message_file';
 
 	protected $primaryKey = 'id';
 
@@ -22,10 +22,8 @@ class WorkPermitFile extends Model
 	public function getFileUrlAttribute()
 	{
 
-		return $this->cat_documents_workpermit_id ? Storage::disk('public')->url("WorkPermits/{$this->work_permit_id}/{$this->file}") : null;
+		return Storage::disk('public')->url("Messages/{$this->messages_id}/{$this->file}");
 	}
 
-	protected $casts = [
-        'cat_documents_workpermit_id' => 'integer',
-    ];
+	
 }

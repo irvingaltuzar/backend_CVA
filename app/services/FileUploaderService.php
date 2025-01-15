@@ -26,24 +26,129 @@ class FileUploaderService
 		];
 	}
 
+	// 	public function upload($file, Array $payload)
+	// {
+	//     // Generar un nombre de archivo único
+	// 	$alias_file = substr(str_shuffle(str_repeat('ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz0123456789', 15)), 0, 15);
+	// 	// $alias_file = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+		
+	// 	// Obtener la extensión del archivo desde el objeto $file
+	// 	$ext = $file->getClientOriginalExtension();
+		
+	// 	// Generar el nombre final del archivo
+	// 	$filename = "{$alias_file}.{$ext}";
+		
+	// 	// Definir la ruta donde se almacenará el archivo
+	// 	$path = "{$payload['type']}/{$payload['id']}/";
+
+	// 	// Almacenar el archivo en el disco 'public'
+	// 	Storage::disk('public')->putFileAs($path, $file, $filename);
+
+	// 	// Retornar el nombre del archivo
+	// 	return [
+	// 		'filename' => $filename
+	// 	];
+	// }
+
 	public function upload($file, Array $payload)
 	{
-		$alias_file = substr(str_shuffle(str_repeat('ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz01234567890123456789012345678901234567890123456789',15)),0,15);
+		  // Verificar si el archivo es una cadena base64
+		  if (is_array($file) && isset($file['data']) && is_string($file['data']) && strpos($file['data'], 'data:image') === 0) {
+			// Si es base64, extraer la parte base64 de la cadena
+			$fileData = explode(',', $file['data']); // Se accede a la propiedad 'data' de $file
+			$fileContent = base64_decode($fileData[1]);
+	
+			// Obtener la extensión del archivo a partir del tipo de archivo
+			preg_match('/data:image\/(.*);base64/', $fileData[0], $matches);
+			$ext = $matches[1];
+	
+			// Generar un nombre de archivo único
+	        $alias_file = pathinfo($file['name'], PATHINFO_FILENAME); // Se accede a la propiedad 'name' de $file
+			$filename = "{$alias_file}.{$ext}";
+	
+			// Definir la ruta donde se almacenará el archivo
+			$path = "{$payload['type']}/{$payload['id']}/";
+	
+			// Almacenar el archivo en el disco 'public'
+			Storage::disk('public')->put($path . $filename, $fileContent);
+	
+			// Retornar el nombre del archivo
+			return [
+				'filename' => $filename
+			];
+		}
+	
 
-		$ext = $file['ext'];
-
-
+    // Si no es base64, seguir con el procesamiento de archivos tradicionales
+    else {
+		if ($file instanceof \Illuminate\Http\UploadedFile) {
+        // Generar un nombre de archivo único
+    	$alias_file = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+		
+		// Obtener la extensión del archivo desde el objeto $file
+		$ext = $file->getClientOriginalExtension();
+		
+		// Generar el nombre final del archivo
 		$filename = "{$alias_file}.{$ext}";
+		
+		// Definir la ruta donde se almacenará el archivo
+		$path = "{$payload['type']}/{$payload['id']}/";
 
-		$path = "{$payload['type']}/{$payload['id']}/{$filename}";
+		// Almacenar el archivo en el disco 'public'
+		Storage::disk('public')->putFileAs($path, $file, $filename);
 
-		$b64Image  = preg_replace('#^data:image/\w+;base64,#i', '', $file['data']);
-		$imageFile = base64_decode($b64Image);
-
-		Storage::disk('public')->put($path, $imageFile);
-
+		// Retornar el nombre del archivo
 		return [
 			'filename' => $filename
 		];
+    }
+	else {
+	// Si el archivo no es un objeto UploadedFile ni un string base64, manejar el error
+	throw new \Exception("El archivo no es válido.");
+}
 	}
+}
+
+
+
+		public function uploadDoc($file, array $payload)
+		{
+			// Verifica si el archivo es una instancia de UploadedFile y es válido
+			if (!$file instanceof \Illuminate\Http\UploadedFile || !$file->isValid()) {
+				throw new \Exception('El archivo no es válido o no se ha enviado correctamente');
+			}
+		
+			// Generar un nombre de archivo único
+			$alias_file = $this->getDocumentDetails($payload['cat_document_id']);
+		
+			// Obtener la extensión del archivo desde el objeto $file
+			$ext = $file->getClientOriginalExtension();
+			$time = time();    
+			// Generar el nombre final del archivo
+			$filename = "{$payload['id']}_{$time}_{$alias_file['code']}.{$ext}";
+		
+			// Definir la ruta donde se almacenará el archivo
+			$path = "{$payload['type']}/{$payload['id']}/";
+		
+			// Almacenar el archivo en el disco 'public'
+			Storage::disk('public')->putFileAs($path, $file, $filename);
+		
+			// Retornar el nombre del archivo
+			return [
+				'filename' => $filename
+			];
+		}
+		function getDocumentDetails($id) {
+			$documentMapping = [
+				1 => ['name' => 'comprobante de vigencia de derechos del imss', 'code' => 'CVDIM_CPSUA'],
+				2 => ['name' => 'formato de análisis de tarea segura', 'code' => 'FATS'],
+				3 => ['name' => 'constancia de capacitación', 'code' => 'CC'],
+				4 => ['name' => 'plan de trabajo a realizar', 'code' => 'PTAR'],
+				5 => ['name' => 'Otros', 'code' => 'OTR'],
+				5 => ['name' => 'Imagenes', 'code' => 'Img'],
+			];
+			
+			return $documentMapping[$id] ?? ['name' => 'Desconocido', 'code' => 'N/A'];
+		}
+
 }

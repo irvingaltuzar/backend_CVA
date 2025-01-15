@@ -70,7 +70,7 @@ class RuleController extends Controller
 		$rules = Environment::with(['bucket_rule.rule'])
 					->where('id', $request->current_environment)
 					->first();
-
+					
 		$rules = $rules->bucket_rule->groupBy([fn($rule) => $rule->rule->description]);
 
 		return response()->json($rules);
